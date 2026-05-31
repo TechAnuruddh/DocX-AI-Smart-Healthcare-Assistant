@@ -1,0 +1,485 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - DocX AI Healthcare{% endblock %}
+
+{% block content %}
+<!-- Ultra-Compact Diagnostic Bar -->
+<div class="row mb-3 animate-up">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-pill bg-white px-4 py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="ai-status-pill m-0">
+                        <span class="pulse-dot"></span> AI ONLINE
+                    </div>
+                    <h5 class="fw-800 mb-0 d-none d-md-block">{{ greeting }}, <span class="text-primary">{{ user.username }}</span></h5>
+                    <div class="vr mx-2 d-none d-lg-block"></div>
+                    <div class="smaller fw-bold text-muted d-none d-lg-block">
+                        <i class="bi bi-shield-check text-success"></i> ID: #{{ user.id|add:1000 }}
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="badge bg-light border text-dark px-3 py-1 rounded-pill smaller fw-bold">
+                        <i class="bi bi-calendar-event text-primary me-1"></i> <span id="current-date"></span>
+                    </div>
+                    <a href="{% url 'profile' %}"
+                        class="btn btn-primary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center"
+                        style="width: 32px; height: 32px;">
+                        <i class="bi bi-person"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real-time Vitals Monitor (Simulated) -->
+<div class="row g-4 mb-4 animate-up delay-1">
+    <div class="col-6 col-md-3">
+        <div class="vitals-card shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'log_vitals' %}';">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="vitals-icon-box bg-danger-soft">
+                    <i class="fa-solid fa-heart-pulse heart-pulse-icon"></i>
+                </div>
+                <span class="live-indicator">{% if vitals.has_real_data %}Updated{% else %}Live{% endif %}</span>
+            </div>
+            <div class="vitals-value" id="heart-rate">{{ vitals.heart_rate }}</div>
+            <div class="vitals-label">Heart Rate (BPM)</div>
+            <div class="mt-2 smaller text-success"><i class="bi bi-caret-up-fill"></i> Normal</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="vitals-card shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'log_vitals' %}';">
+            <div class="vitals-icon-box bg-primary-soft">
+                <i class="fa-solid fa-droplet text-primary"></i>
+            </div>
+            <div class="vitals-value" id="blood-oxygen">{{ vitals.blood_oxygen }}%</div>
+            <div class="vitals-label">Blood Oxygen</div>
+            <div class="mt-2 smaller text-success">Optimal</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="vitals-card shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'log_vitals' %}';">
+            <div class="vitals-icon-box bg-success-soft">
+                <i class="fa-solid fa-shoe-prints text-success"></i>
+            </div>
+            <div class="vitals-value" id="steps-count">{{ vitals.steps|default:"0" }}</div>
+            <div class="vitals-label">Daily Steps</div>
+            <div class="progress mt-2" style="height: 4px;">
+                <div class="progress-bar bg-success" style="width: 52%"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="vitals-card shadow-sm h-100 cursor-pointer" onclick="location.href='{% url 'log_vitals' %}';">
+            <div class="vitals-icon-box bg-info-soft">
+                <i class="fa-solid fa-weight-scale text-info"></i>
+            </div>
+            <div class="vitals-value">{{ vitals.weight|default:"--" }} kg</div>
+            <div class="vitals-label">Body Weight</div>
+            <div class="mt-2 smaller text-muted">Latest Record</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <!-- Health Score Trends -->
+    <div class="col-lg-8 animate-up delay-2">
+        <div class="card border-0 shadow-sm rounded-24 h-100 overflow-hidden">
+            <div class="card-header bg-white py-4 px-4 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-graph-up-arrow text-primary me-2"></i> Health Vitality Trends
+                </h5>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm rounded-pill px-3" type="button" data-bs-toggle="dropdown">
+                        Last 7 Days <i class="bi bi-chevron-down ms-1"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body px-4 pb-4">
+                <div style="height: 300px;">
+                    <canvas id="healthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Clinical Command Hub -->
+    <div class="col-lg-4 animate-up delay-2">
+        <div class="card ai-intelligence-card border-0 shadow-sm rounded-24 h-100">
+            <div class="ai-scan-line"></div>
+            <div class="card-header py-4 px-4 border-0 d-flex align-items-center">
+                <div class="ai-brain-pulse me-2">
+                    <i class="fa-solid fa-microchip text-primary"></i>
+                </div>
+                <h5 class="mb-0 fw-bold ai-card-title">AI Clinical Command</h5>
+            </div>
+            <div class="card-body text-center d-flex flex-column justify-content-between px-4 pb-4">
+                <div class="position-relative d-inline-block mx-auto mb-3">
+                    <canvas id="healthScoreGauge" width="160" height="120"></canvas>
+                    <div class="position-absolute top-50 start-50 translate-middle mt-2">
+                        <div class="h2 fw-800 ai-score-digit mb-0">{{ health_score|default:100 }}</div>
+                        <div class="smaller text-muted fw-bold">SCORE</div>
+                    </div>
+                </div>
+
+                <div class="ai-insight-box unique text-start mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-primary smaller rounded-pill me-2">AI ANALYSIS</span>
+                        <div class="spinner-grow spinner-grow-sm text-primary" role="status"></div>
+                    </div>
+                    <p class="smaller ai-card-text mb-0 typing-text" style="line-height: 1.6; font-style: italic;">
+                        "{{ ai_clinical_note }}"
+                    </p>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="wellness-ring-wrapper unique mx-auto">
+                            <svg class="wellness-ring-svg" width="60" height="60">
+                                <circle class="wellness-ring-circle-bg" cx="30" cy="30" r="25" fill="none"
+                                    stroke="rgba(13, 110, 253, 0.1)"></circle>
+                                <circle class="wellness-ring-circle-progress" cx="30" cy="30" r="25" fill="none"
+                                    stroke="#0d6efd" stroke-dasharray="157" stroke-dashoffset="47"></circle>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle smaller fw-bold text-primary"
+                                style="font-size: 0.65rem;">70%</div>
+                        </div>
+                        <div class="smaller fw-bold ai-card-text-dim mt-1">Hydration</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="wellness-ring-wrapper unique mx-auto">
+                            <svg class="wellness-ring-svg" width="60" height="60">
+                                <circle class="wellness-ring-circle-bg" cx="30" cy="30" r="25" fill="none"
+                                    stroke="rgba(16, 185, 129, 0.1)"></circle>
+                                <circle class="wellness-ring-circle-progress" cx="30" cy="30" r="25" fill="none"
+                                    stroke="#10b981" stroke-dasharray="157" stroke-dashoffset="78"></circle>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle smaller fw-bold text-success"
+                                style="font-size: 0.65rem;">50%</div>
+                        </div>
+                        <div class="smaller fw-bold ai-card-text-dim mt-1">Daily Goals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Access Portals -->
+<div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-3 animate-up delay-1">
+        <div class="portal-card shadow-sm" onclick="location.href='{% url 'add_symptom' %}';">
+            <div class="portal-icon">
+                <i class="fa-solid fa-plus-circle"></i>
+            </div>
+            <h5>Add Logs</h5>
+            <p>Report new symptoms</p>
+            <div class="portal-link-text">Open Portal <i class="bi bi-chevron-right"></i></div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 animate-up delay-2">
+        <div class="portal-card shadow-sm" onclick="location.href='{% url 'symptom_history' %}';">
+            <div class="portal-icon">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <h5>History</h5>
+            <p>View past records</p>
+            <div class="portal-link-text">Open Portal <i class="bi bi-chevron-right"></i></div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 animate-up delay-3">
+        <div class="portal-card shadow-sm" onclick="location.href='{% url 'health_tips' %}';">
+            <div class="portal-icon">
+                <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <h5>Guidance</h5>
+            <p>Tips & advice</p>
+            <div class="portal-link-text">Open Portal <i class="bi bi-chevron-right"></i></div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 animate-up delay-4">
+        <div class="portal-card shadow-sm" onclick="location.href='{% url 'doctor_contact' %}';">
+            <div class="portal-icon">
+                <i class="fa-solid fa-user-md"></i>
+            </div>
+            <h5>Specialists</h5>
+            <p>Consult experts</p>
+            <div class="portal-link-text">Open Portal <i class="bi bi-chevron-right"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Clinical Activity -->
+<div class="row mb-5 animate-up delay-3">
+    <div class="col-12">
+        <div class="card border-0 shadow-lg premium-card rounded-24 overflow-hidden">
+            <div class="card-header bg-white py-4 px-4 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-list-task text-primary me-2"></i> Clinical Diagnostic Log</h5>
+                <a href="{% url 'symptom_history' %}" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">View
+                    Archive</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_symptoms %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 border-0 text-uppercase small fw-bold text-muted">Diagnostic Case</th>
+                                <th class="border-0 text-uppercase small fw-bold text-muted">Patient Analysis</th>
+                                <th class="border-0 text-uppercase small fw-bold text-muted text-center">Severity Status
+                                </th>
+                                <th class="border-0 text-uppercase small fw-bold text-muted">Diagnostic Date</th>
+                                <th class="text-end pe-4 border-0 text-uppercase small fw-bold text-muted">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for symptom in recent_symptoms %}
+                            <tr>
+                                <td class="ps-4 py-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="activity-icon-sm bg-primary-soft me-3">
+                                            <i class="bi bi-clipboard2-pulse"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">Case #SHA-{{ symptom.id }}</div>
+                                            <div class="smaller text-muted">AI-Assisted Checkup</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4">
+                                    <div class="d-flex align-items-center">
+                                        {% if is_admin %}
+                                        <img src="https://ui-avatars.com/api/?name={{ symptom.user.username|urlencode }}&background=random&color=fff&size=32"
+                                            class="rounded-circle me-2" alt="User">
+                                        <span class="text-dark fw-semibold me-2">{{ symptom.user.username }}</span>
+                                        <span class="text-muted small">| {{ symptom.symptom_text|truncatechars:30 }}</span>
+                                        {% else %}
+                                        <span class="text-muted small">{{ symptom.symptom_text|truncatechars:45 }}</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="py-4 text-center">
+                                    {% if symptom.severity == 'Low' %}
+                                    <span class="status-pill bg-success-subtle text-success">Verified Stable</span>
+                                    {% elif symptom.severity == 'Medium' %}
+                                    <span class="status-pill bg-warning-subtle text-warning">Awaiting Review</span>
+                                    {% else %}
+                                    <span class="status-pill bg-danger-subtle text-danger pulse-red">Urgent Action
+                                        Required</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-4">
+                                    <div class="small fw-bold text-dark">{{ symptom.created_at|date:"M d, Y" }}</div>
+                                    <div class="smaller text-muted">{{ symptom.created_at|time:"H:i" }}</div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{% url 'symptom_history' %}"
+                                        class="btn btn-sm btn-icon btn-light rounded-circle shadow-sm">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-state-icon mb-3 mx-auto">
+                        <i class="bi bi-clipboard-x"></i>
+                    </div>
+                    <h5 class="fw-bold">No Records Found</h5>
+                    <p class="text-muted">Start by logging your symptoms to see AI diagnostics.</p>
+                    <a href="{% url 'add_symptom' %}" class="btn btn-outline-primary rounded-pill px-4">Start
+                        Logging</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Emergency Navigation Dock -->
+<div class="emergency-dock">
+    <a href="tel:108" class="dock-item sos" title="Emergency SOS">
+        <i class="fa-solid fa-phone"></i>
+    </a>
+    <a href="{% url 'log_vitals' %}" class="dock-item" title="Update Vitals">
+        <i class="fa-solid fa-heart-circle-plus"></i>
+    </a>
+    <a href="{% url 'add_symptom' %}" class="dock-item" title="New AI Checkup">
+        <i class="fa-solid fa-robot"></i>
+    </a>
+    <a href="{% url 'doctor_contact' %}" class="dock-item" title="Contact Doctor">
+        <i class="fa-solid fa-user-doctor"></i>
+    </a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Premium Color Palette
+    const primaryColor = '#0d6efd';
+    const primaryColorSoft = 'rgba(13, 110, 253, 0.1)';
+    const primaryColorGradient = (ctx) => {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(13, 110, 253, 0.3)');
+        gradient.addColorStop(1, 'rgba(13, 110, 253, 0)');
+        return gradient;
+    };
+
+    // 1. Line Chart: Health Monitoring
+    const healthChartEl = document.getElementById('healthChart');
+    if (healthChartEl) {
+        const ctxLine = healthChartEl.getContext('2d');
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|safe|default:"[]" }},
+    datasets: [{
+        label: 'Vitality Score',
+        data: {{ chart_data|safe|default:"[]" }},
+        borderColor: primaryColor,
+        backgroundColor: primaryColorGradient(ctxLine),
+        borderWidth: 4,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: primaryColor,
+        pointBorderWidth: 2,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: primaryColor,
+        pointHoverBorderColor: '#fff',
+        pointHoverBorderWidth: 3
+                }]
+            },
+    options: {
+        responsive: true,
+            maintainAspectRatio: false,
+                plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#1e293b',
+                    padding: 12,
+                        titleFont: { size: 14, weight: 'bold' },
+                bodyFont: { size: 13 },
+                displayColors: false,
+                    callbacks: {
+                    label: function(context) {
+                        return ` Score: ${context.parsed.y}/100`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                    max: 100,
+                        grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
+                ticks: { font: { weight: '600' }, padding: 10 }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { font: { weight: '600' }, padding: 10 }
+            }
+        }
+    }
+        });
+    }
+
+    // 2. Doughnut Gauge: Smart Health Score
+    const gaugeEl = document.getElementById('healthScoreGauge');
+    if (gaugeEl) {
+        const ctxGauge = gaugeEl.getContext('2d');
+        const hScore = parseInt('{{ health_score|default:100 }}') || 100;
+        const hRemainder = 100 - hScore;
+        const scoreColor = hScore >= 80 ? '#10b981' : (hScore >= 50 ? '#f59e0b' : '#ef4444');
+
+        new Chart(ctxGauge, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [hScore, hRemainder],
+                    backgroundColor: [scoreColor, 'rgba(0,0,0,0.05)'],
+                    borderWidth: 0,
+                    circumference: 270,
+                    rotation: 225,
+                    borderRadius: 20,
+                    cutout: '82%'
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000
+                }
+            }
+        });
+    }
+
+    // 3. AI Typing Animation
+    function initTypingAnimation() {
+        const typingEl = document.querySelector('.typing-text');
+        if (typingEl) {
+            const text = typingEl.innerText.trim();
+            if (text.length > 2) { // Only if there's actual content
+                typingEl.innerText = '';
+                let i = 0;
+                const type = () => {
+                    if (i < text.length) {
+                        typingEl.innerText += text.charAt(i);
+                        i++;
+                        setTimeout(type, Math.random() * 30 + 20);
+                    }
+                };
+                type();
+            }
+        }
+    }
+
+    // 4. Simulated Vitals Logic
+    function updateVitals() {
+        const hr = document.getElementById('heart-rate');
+        const ox = document.getElementById('blood-oxygen');
+        if (!hr || !ox) return;
+
+        const currentHR = parseInt(hr.innerText) || 72;
+        const baselineHR = parseInt('{{ vitals.heart_rate|default:72 }}') || 72;
+        const hrChange = Math.floor(Math.random() * 3) - 1;
+        const newHR = currentHR + hrChange;
+        if (Math.abs(newHR - baselineHR) < 8) hr.innerText = newHR;
+
+        if (Math.random() > 0.8) {
+            const currentOX = parseInt(ox.innerText.replace('%', '')) || 98;
+            const oxChange = Math.floor(Math.random() * 3) - 1;
+            const newOX = Math.min(100, Math.max(92, currentOX + oxChange));
+            ox.innerText = newOX + '%';
+        }
+    }
+
+    function updateDate() {
+        const el = document.getElementById('current-date');
+        if (el) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            el.innerText = new Date().toLocaleDateString(undefined, options);
+        }
+    }
+
+    // Initialize everything on load
+    document.addEventListener('DOMContentLoaded', () => {
+        updateDate();
+        initTypingAnimation();
+        setInterval(updateVitals, 3000);
+    });
+</script>
+{% endblock %}

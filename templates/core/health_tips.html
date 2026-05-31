@@ -1,0 +1,461 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+
+{% block title %}Health Insights Hub | DocX{% endblock %}
+{% block header_title %}Intelligence Hub{% endblock %}
+{% block header_subtitle %}Evidence-based health optimization strategies and expert clinical advice{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-5 animate-slide-up">
+    <!-- Top Stats Bar -->
+    <div class="col-12 mb-2">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="glass-card p-3 border-0 d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                        <i class="bi bi-graph-up-arrow text-primary"></i>
+                    </div>
+                    <div>
+                        <p class="smaller text-muted mb-0">Global Health Trend</p>
+                        <h6 class="fw-bold mb-0">+12% Wellness</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 border-0 d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                    </div>
+                    <div>
+                        <p class="smaller text-muted mb-0">Verified Insights</p>
+                        <h6 class="fw-bold mb-0">1,240+ Articles</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 border-0 d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                        <i class="bi bi-people-fill text-warning"></i>
+                    </div>
+                    <div>
+                        <p class="smaller text-muted mb-0">Community Size</p>
+                        <h6 class="fw-bold mb-0">50K Members</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 border-0 d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                        <i class="bi bi-patch-check-fill text-info"></i>
+                    </div>
+                    <div>
+                        <p class="smaller text-muted mb-0">Source Accuracy</p>
+                        <h6 class="fw-bold mb-0">99.8% Medical</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Sidebar (Desktop) -->
+    <div class="col-lg-3">
+        <div class="glass-card p-4 sticky-top border-0 shadow-lg" style="top: 100px;">
+            <h5 class="fw-800 mb-4 border-bottom pb-3">Expert Categories</h5>
+            <div class="d-flex flex-column gap-2" id="categoryFilter">
+                <button class="btn btn-glass text-start active w-100 py-3 px-4 border-0 mb-2" onclick="filterTips('all')">
+                    <i class="bi bi-collection-fill me-2 text-primary"></i> All Insights
+                </button>
+                <button class="btn btn-glass text-start w-100 py-3 px-4 border-0 mb-2" onclick="filterTips('cardiac')">
+                    <i class="bi bi-heart-pulse-fill me-2 text-danger"></i> Cardiac Health
+                </button>
+                <button class="btn btn-glass text-start w-100 py-3 px-4 border-0 mb-2" onclick="filterTips('mental')">
+                    <i class="bi bi-brain-fill me-2 text-info"></i> Mental Wellness
+                </button>
+                <button class="btn btn-glass text-start w-100 py-3 px-4 border-0 mb-2" onclick="filterTips('nutrition')">
+                    <i class="bi bi-apple me-2 text-success"></i> Nutrition
+                </button>
+            </div>
+            
+            <!-- Newsletter Signup -->
+            <div class="mt-4 p-4 rounded-4 bg-primary bg-opacity-10 border border-primary border-opacity-10">
+                <h6 class="fw-bold mb-2">Weekly Intelligence</h6>
+                <p class="smaller text-muted mb-3">Get clinical updates in your inbox.</p>
+                <form action="{% url 'subscribe_newsletter' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm mb-2">
+                        <input type="email" name="email" class="form-control bg-transparent border-secondary border-opacity-25" placeholder="Email address" required>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Articles Grid & BMI Center -->
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-800 mb-0">Latest Articles</h3>
+            <div class="glass rounded-pill px-3 py-2 d-flex align-items-center gap-2 border-0" style="background: rgba(128,128,128,0.1); min-width: 250px;">
+                <i class="bi bi-search text-muted"></i>
+                <input type="text" id="tipsSearch" class="bg-transparent border-0 w-100 smaller" placeholder="Search insights..." style="color: inherit;">
+            </div>
+        </div>
+
+        <div class="row g-4" id="tipsGrid">
+            <!-- Article Row 1 -->
+            <div class="col-md-6 tip-item" data-category="mental">
+                <div class="stats-card h-100 p-0 overflow-hidden border-0">
+                    <div class="position-relative" style="height: 220px;">
+                        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600" class="w-100 h-100 object-fit-cover" alt="Mindfulness">
+                        <div class="position-absolute top-0 end-0 p-3 d-flex gap-2">
+                            <button class="btn btn-glass p-2 rounded-circle border-0" onclick="toggleBookmark(this);"><i class="bi bi-bookmark"></i></button>
+                            <span class="badge bg-primary bg-opacity-75 blur-sm rounded-pill px-3 py-2">Expert Verified</span>
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 p-3 w-100 bg-gradient-dark">
+                            <span class="badge bg-info-gradient rounded-pill px-3 py-2">Mental Wellness</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="d-flex align-items-center gap-2 mb-3 text-muted smaller fw-bold">
+                            <i class="bi bi-calendar3"></i> APR 20, 2024 • <i class="bi bi-book"></i> 5 MIN READ
+                        </div>
+                        <h4 class="fw-800 mb-3">Mastering Mindfulness: 3 Techniques for Stress</h4>
+                        <p class="text-muted smaller mb-4">Explore cognitive behavioral strategies and simple meditation patterns that clinically reduce long-term stress levels.</p>
+                        <a href="#" class="btn-premium w-100 justify-content-center">Read Full Insight</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 tip-item" data-category="fitness">
+                <div class="stats-card h-100 p-0 overflow-hidden border-0">
+                    <div class="position-relative" style="height: 220px;">
+                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=600" class="w-100 h-100 object-fit-cover" alt="Gym">
+                        <div class="position-absolute top-0 end-0 p-3 d-flex gap-2">
+                            <button class="btn btn-glass p-2 rounded-circle border-0" onclick="toggleBookmark(this);"><i class="bi bi-bookmark"></i></button>
+                        </div>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <div class="rounded-circle bg-primary p-4 shadow-lg pulse">
+                                <i class="bi bi-play-fill fs-2 text-white"></i>
+                            </div>
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 p-3 w-100 bg-gradient-dark">
+                            <span class="badge bg-primary-gradient rounded-pill px-3 py-2">Video Insight</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="d-flex align-items-center gap-2 mb-3 text-muted smaller fw-bold">
+                            <i class="bi bi-play-circle-fill text-primary"></i> WATCH NOW • 12 MINS
+                        </div>
+                        <h4 class="fw-800 mb-3">Optimal Recovery: The Science of Rest</h4>
+                        <p class="text-muted smaller mb-4">Why rest days are as important as training days for muscle hypertrophy and neurological health.</p>
+                        <a href="#" class="btn-premium w-100 justify-content-center">Watch Video</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BMI Calculator Hero Section (FIXED IMAGE & MATH) -->
+            <div class="col-12 my-5">
+                <div class="glass-card p-5 border-0 shadow-lg position-relative overflow-hidden bmi-assessment-card">
+                    <!-- Fixed Icon Positioning -->
+                    <div class="position-absolute bottom-0 end-0 p-4 opacity-5" style="transform: translate(20%, 20%); pointer-events: none;">
+                        <i class="bi bi-calculator fs-1 text-black" style="font-size: 200px !important;"></i>
+                    </div>
+                    
+                    <div class="row align-items-center position-relative" style="z-index: 2;">
+                        <div class="col-lg-6">
+                            <h2 class="fw-800 mb-3 text-black">Clinical BMI Assessment</h2>
+                            <p class="text-dark opacity-75 mb-4">Enter your metrics below to calculate your Body Mass Index using our validated clinical tool.</p>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <div class="bg-dark bg-opacity-10 p-3 rounded-4 border border-dark border-opacity-10 bmi-input-box" style="min-width: 160px;">
+                                    <label class="smaller fw-bold text-dark opacity-75 mb-2">WEIGHT (KG)</label>
+                                    <input type="number" id="bmiWeight" class="form-control bg-transparent border-0 text-black fw-bold fs-4 p-0" placeholder="e.g. 70">
+                                </div>
+                                <div class="bg-dark bg-opacity-10 p-3 rounded-4 border border-dark border-opacity-10 bmi-input-box" style="min-width: 160px;">
+                                    <label class="smaller fw-bold text-dark opacity-75 mb-2">HEIGHT (CM)</label>
+                                    <input type="number" id="bmiHeight" class="form-control bg-transparent border-0 text-black fw-bold fs-4 p-0" placeholder="e.g. 175">
+                                </div>
+                                <button onclick="calculateBMI();" class="btn btn-primary fw-bold px-5 rounded-pill shadow-lg mt-2 mt-sm-0">Calculate Result</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mt-5 mt-lg-0">
+                            <div id="bmiResultCard" class="p-4 rounded-4 text-center shadow-lg d-none border border-light animate-slide-up bmi-result-card">
+                                <h1 id="bmiValue" class="display-3 fw-800 mb-0 text-black animate-scale-up">00.0</h1>
+                                <h4 id="bmiCategory" class="fw-bold text-uppercase mb-3 text-primary">RESULT</h4>
+                                <div class="progress rounded-pill bg-dark bg-opacity-5 mb-3" style="height: 12px;">
+                                    <div id="bmiProgress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                </div>
+                                <div id="bmiAdvice" class="p-3 rounded-3 bg-primary bg-opacity-5 small text-dark fw-500">
+                                    Enter your details to receive clinical advice.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article Row 2 -->
+            <div class="col-md-6 tip-item" data-category="nutrition">
+                <div class="stats-card h-100 p-0 overflow-hidden border-0">
+                    <div class="position-relative" style="height: 220px;">
+                        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=600" class="w-100 h-100 object-fit-cover" alt="Nutrition">
+                        <div class="position-absolute top-0 end-0 p-3 d-flex gap-2">
+                            <button class="btn btn-glass p-2 rounded-circle border-0" onclick="toggleBookmark(this);"><i class="bi bi-bookmark"></i></button>
+                            <span class="badge bg-success bg-opacity-75 blur-sm rounded-pill px-3 py-2">Clinical Guide</span>
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 p-3 w-100 bg-gradient-dark">
+                            <span class="badge bg-success-gradient rounded-pill px-3 py-2">Nutrition</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="d-flex align-items-center gap-2 mb-3 text-muted smaller fw-bold">
+                            <i class="bi bi-calendar3"></i> APR 18, 2024 • <i class="bi bi-book"></i> 8 MIN READ
+                        </div>
+                        <h4 class="fw-800 mb-3">The Superfood Blueprint: Fueling Immunity</h4>
+                        <p class="text-muted smaller mb-4">A deep dive into antioxidants and specific phytonutrients that help your cells fight inflammation.</p>
+                        <a href="#" class="btn-premium w-100 justify-content-center">Read Full Insight</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 tip-item" data-category="cardiac">
+                <div class="stats-card h-100 p-0 overflow-hidden border-0">
+                    <div class="position-relative" style="height: 220px;">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=600" class="w-100 h-100 object-fit-cover" alt="Cardio">
+                        <div class="position-absolute top-0 end-0 p-3 d-flex gap-2">
+                            <button class="btn btn-glass p-2 rounded-circle border-0" onclick="toggleBookmark(this);"><i class="bi bi-bookmark"></i></button>
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 p-3 w-100 bg-gradient-dark">
+                            <span class="badge bg-danger-gradient rounded-pill px-3 py-2">Cardiac Health</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="d-flex align-items-center gap-2 mb-3 text-muted smaller fw-bold">
+                            <i class="bi bi-calendar3"></i> APR 15, 2024 • <i class="bi bi-book"></i> 6 MIN READ
+                        </div>
+                        <h4 class="fw-800 mb-3">Cardiovascular Vitality: HIIT vs. LISS</h4>
+                        <p class="text-muted smaller mb-4">Comparing High-Intensity Interval Training and Low-Intensity Steady State for optimal heart health.</p>
+                        <a href="#" class="btn-premium w-100 justify-content-center">Read Full Insight</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expert Panel Section -->
+            <div class="col-12 mt-5">
+                <h4 class="fw-800 mb-4">Expert Review Board</h4>
+                <div class="glass-card p-4 border-0">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{% static 'img/dr_utkarsh.jpg' %}" class="rounded-circle border border-2 border-primary" style="width: 60px; height: 60px; object-fit: cover;" alt="Dr. Utkarsh">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-black">Dr. Utkarsh Srivastav</h6>
+                                    <p class="smaller text-muted mb-0">Cardiology Expert</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=100" class="rounded-circle border border-2 border-success" style="width: 60px; height: 60px; object-fit: cover;" alt="Dr. Michael">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-black">Dr. Pankaj Singh</h6>
+                                    <p class="smaller text-muted mb-0">Nutrition Scientist</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=100" class="rounded-circle border border-2 border-info" style="width: 60px; height: 60px; object-fit: cover;" alt="Dr. Elena">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-black">Dr. Tanvi Shukla</h6>
+                                    <p class="smaller text-muted mb-0">Mental Health MD</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // BMI Calculator Logic (FIXED FOR CORRECT RESULTS)
+    function calculateBMI() {
+        const weightInput = document.getElementById('bmiWeight').value;
+        const heightInput = document.getElementById('bmiHeight').value;
+        const resultCard = document.getElementById('bmiResultCard');
+        const bmiValue = document.getElementById('bmiValue');
+        const bmiCategory = document.getElementById('bmiCategory');
+        const bmiProgress = document.getElementById('bmiProgress');
+        const bmiAdvice = document.getElementById('bmiAdvice');
+
+        const weight = parseFloat(weightInput);
+        const height = parseFloat(heightInput) / 100; // Convert CM to Meters
+
+        // Validate Inputs
+        if (weight > 10 && weight < 500 && height > 0.5 && height < 3.0) {
+            const bmi = (weight / (height * height)).toFixed(1);
+            resultCard.classList.remove('d-none');
+            bmiValue.innerText = bmi;
+            
+            let category = '';
+            let progress = 0;
+            let advice = '';
+            let color = '#3b82f6';
+
+            if (bmi < 18.5) { 
+                category = 'Underweight'; 
+                progress = 25; 
+                color = '#0ea5e9';
+                advice = 'Consider consulting a nutritionist to improve your caloric intake safely.';
+            } else if (bmi < 25) { 
+                category = 'Normal Weight'; 
+                progress = 50; 
+                color = '#10b981';
+                advice = 'Perfect! Your weight is in the healthy clinical range. Keep it up!';
+            } else if (bmi < 30) { 
+                category = 'Overweight'; 
+                progress = 75; 
+                color = '#f59e0b';
+                advice = 'A balanced diet and regular cardio are recommended to reach optimal range.';
+            } else { 
+                category = 'Obese'; 
+                progress = 100; 
+                color = '#ef4444';
+                advice = 'Clinical consultation is recommended for a personalized health plan.';
+            }
+
+            const minWeight = (18.5 * (height * height)).toFixed(1);
+            const maxWeight = (24.9 * (height * height)).toFixed(1);
+            let idealRangeText = `For your height, a healthy weight range is between <strong>${minWeight} kg</strong> and <strong>${maxWeight} kg</strong>.`;
+
+            bmiCategory.innerText = category;
+            bmiCategory.style.color = color;
+            bmiProgress.style.width = progress + '%';
+            bmiProgress.style.backgroundColor = color;
+            bmiAdvice.innerHTML = `
+                <div class="mb-2"><strong>Recommendation:</strong> ${advice}</div>
+                <div class="mt-2 pt-2 border-top border-secondary border-opacity-10 smaller opacity-75">
+                    ${idealRangeText}
+                </div>
+            `;
+        } else {
+            alert("Please enter realistic Weight (10-500kg) and Height (50-300cm) values.");
+        }
+    }
+
+    // Toggle Bookmark
+    function toggleBookmark(btn) {
+        const icon = btn.querySelector('i');
+        if (icon.classList.contains('bi-bookmark')) {
+            icon.classList.replace('bi-bookmark', 'bi-bookmark-fill');
+            icon.classList.add('text-primary');
+        } else {
+            icon.classList.replace('bi-bookmark-fill', 'bi-bookmark');
+            icon.classList.remove('text-primary');
+        }
+    }
+
+    // Search Filtering
+    document.getElementById('tipsSearch').addEventListener('keyup', function() {
+        const value = this.value.toLowerCase();
+        const items = document.querySelectorAll('.tip-item');
+        
+        items.forEach(item => {
+            const title = item.querySelector('h4').innerText.toLowerCase();
+            const desc = item.querySelector('p').innerText.toLowerCase();
+            item.style.display = (title.includes(value) || desc.includes(value)) ? '' : 'none';
+        });
+    });
+
+    // Category Filtering
+    function filterTips(category) {
+        const items = document.querySelectorAll('.tip-item');
+        const buttons = document.querySelectorAll('#categoryFilter .btn');
+        
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        items.forEach(item => {
+            if (category === 'all' || item.dataset.category === category) {
+                item.style.display = '';
+                item.style.animation = 'fadeInUp 0.6s ease-out forwards';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+</script>
+<style>
+    .bg-gradient-dark {
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    }
+    .blur-sm {
+        backdrop-filter: blur(4px);
+    }
+    .pulse {
+        animation: pulse-animation 2s infinite;
+    }
+    .fw-500 { font-weight: 500; }
+    @keyframes pulse-animation {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    /* BMI Assessment Premium & Dark Mode Styles */
+    .bmi-assessment-card {
+        background: rgba(255, 255, 255, 0.95);
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+    .bmi-result-card {
+        background: #ffffff;
+        transition: background 0.3s ease;
+    }
+    .bmi-input-box {
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    
+    body.dark-mode .bmi-assessment-card {
+        background: rgba(30, 30, 30, 0.95) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+    body.dark-mode .bmi-assessment-card h2,
+    body.dark-mode .bmi-assessment-card p,
+    body.dark-mode .bmi-assessment-card label,
+    body.dark-mode .bmi-assessment-card input {
+        color: #ffffff !important;
+    }
+    body.dark-mode .bmi-assessment-card input::placeholder {
+        color: rgba(255, 255, 255, 0.4) !important;
+    }
+    body.dark-mode .bmi-input-box {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    body.dark-mode .bmi-result-card {
+        background: #1e1e1e !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode .bmi-result-card h1 {
+        color: #ffffff !important;
+    }
+    body.dark-mode #bmiAdvice {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: #e0e0e0 !important;
+    }
+    
+    .animate-scale-up {
+        animation: scaleUp 0.3s ease-out forwards;
+    }
+    @keyframes scaleUp {
+        0% { transform: scale(0.9); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+{% endblock %}
+{% endblock %}

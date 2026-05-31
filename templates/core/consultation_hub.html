@@ -1,0 +1,190 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Tele-Consultation Hub | DocX{% endblock %}
+
+{% block content %}
+<div class="row animate-up">
+    <div class="col-lg-10 mx-auto">
+        <!-- Back Button -->
+        <a href="{% url 'doctor_contact' %}" class="btn btn-glass mb-4 rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i> Back to Directory
+        </a>
+
+        <div class="glass-card p-4 p-md-5 border-0 rounded-24 shadow-lg overflow-hidden position-relative">
+            <div class="position-absolute top-0 end-0 p-4 opacity-25">
+                <i class="bi bi-broadcast text-primary display-1"></i>
+            </div>
+
+            <div class="row align-items-center position-relative z-1">
+                <div class="col-md-4 text-center mb-4 mb-md-0 border-end border-white border-opacity-10">
+                    <div class="position-relative d-inline-block mb-3">
+                        {% if doctor.name == 'Dr. Utkarsh Sri' %}
+                            <img src="{{ doctor.image_url }}" class="rounded-circle border-4 border-primary shadow-lg" width="160" height="160" style="object-fit: cover;">
+                        {% else %}
+                            <img src="https://i.pravatar.cc/300?u={{ doctor.name|urlencode }}" class="rounded-circle border-4 border-primary shadow-lg" width="160" height="160" style="object-fit: cover;">
+                        {% endif %}
+                        <div class="position-absolute bottom-0 end-0 bg-success rounded-circle border border-white border-4" style="width: 30px; height: 30px;"></div>
+                    </div>
+                    <h3 class="fw-800 mb-0 text-content-theme">{{ doctor.name }}</h3>
+                    <p class="text-primary fw-bold text-uppercase smaller mb-3">{{ doctor.specialization }}</p>
+                    <div class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 smaller mb-4">
+                        <i class="bi bi-shield-check me-1"></i> VERIFIED SPECIALIST
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top border-white border-opacity-10 text-start px-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="activity-icon-sm bg-success-soft me-3">
+                                <i class="bi bi-clock-history text-success"></i>
+                            </div>
+                            <div>
+                                <div class="smaller text-muted fw-bold">Availability</div>
+                                <div class="smaller text-content-theme">Available Today, 09:00 - 18:00</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="activity-icon-sm bg-primary-soft me-3">
+                                <i class="bi bi-translate text-primary"></i>
+                            </div>
+                            <div>
+                                <div class="smaller text-muted fw-bold">Languages</div>
+                                <div class="smaller text-content-theme">English, Hindi, Spanish</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="activity-icon-sm bg-info-soft me-3">
+                                <i class="bi bi-patch-check text-info"></i>
+                            </div>
+                            <div>
+                                <div class="smaller text-muted fw-bold">License</div>
+                                <div class="smaller text-content-theme">MED-DX-{{ doctor.name|length }}024-99</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8 ps-md-5">
+                    <h2 class="fw-800 mb-4 text-content-theme">Choose Consultation Method</h2>
+                    <p class="text-muted mb-5 lead">Select your preferred platform to initialize a secure, encrypted consultation with {{ doctor.name }}.</p>
+
+                    <div class="row g-4">
+                        <!-- WhatsApp Option -->
+                        <div class="col-md-6">
+                            <a href="{{ whatsapp_link }}" target="_blank" class="card h-100 border-0 shadow-sm rounded-24 p-4 text-decoration-none hover-consult-card" style="background: rgba(37, 211, 102, 0.05);">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-whatsapp rounded-circle p-3 me-3 text-white">
+                                        <i class="bi bi-whatsapp fs-3"></i>
+                                    </div>
+                                    <h5 class="fw-800 mb-0 text-dark">WhatsApp</h5>
+                                </div>
+                                <p class="text-muted smaller mb-3">Direct chat and voice notes. Best for quick prescriptions and follow-ups.</p>
+                                <div class="text-whatsapp fw-bold smaller mt-auto">
+                                    START CHAT <i class="bi bi-arrow-right ms-1"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Google Meet Option -->
+                        <div class="col-md-6">
+                            <a href="{{ meet_link }}" target="_blank" class="card h-100 border-0 shadow-sm rounded-24 p-4 text-decoration-none hover-consult-card" style="background: rgba(66, 133, 244, 0.05);">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-meet rounded-circle p-3 me-3 text-white">
+                                        <i class="bi bi-camera-video-fill fs-3"></i>
+                                    </div>
+                                    <h5 class="fw-800 mb-0 text-dark">Google Meet</h5>
+                                </div>
+                                <p class="text-muted smaller mb-3">HD Video consultation. Best for detailed physical observation and clinical discussion.</p>
+                                <div class="text-meet fw-bold smaller mt-auto">
+                                    JOIN MEETING <i class="bi bi-arrow-right ms-1"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Additional Clinical Modules -->
+                    <div class="row g-4 mt-4">
+                        <!-- Prep Checklist -->
+                        <div class="col-md-7">
+                            <div class="card border-0 bg-light rounded-24 p-4 h-100">
+                                <h6 class="fw-800 mb-3 text-content-theme"><i class="bi bi-list-check text-primary me-2"></i>Clinical Prep Guide</h6>
+                                <div class="smaller text-muted">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-check2-circle text-success me-2"></i> Find a quiet, well-lit space
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-check2-circle text-success me-2"></i> Ensure stable internet connection
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-check2-circle text-success me-2"></i> Have recent medical reports ready
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-check2-circle text-success me-2"></i> Use headphones for better privacy
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Latest AI Summary -->
+                        <div class="col-md-5">
+                            <div class="card border-0 bg-primary bg-opacity-10 rounded-24 p-4 h-100 border border-primary border-opacity-10">
+                                <h6 class="fw-800 mb-3 text-primary"><i class="bi bi-cpu-fill me-2"></i>AI Clinical Context</h6>
+                                {% if latest_symptom %}
+                                <div class="smaller text-dark opacity-75 mb-2"><strong>Latest Log:</strong> {{ latest_symptom.symptom_text|truncatechars:60 }}</div>
+                                <div class="badge rounded-pill bg-primary bg-opacity-25 text-primary smaller">Severity: {{ latest_symptom.severity }}</div>
+                                {% else %}
+                                <p class="smaller text-muted mb-0">No recent clinical logs found.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Privacy Shield -->
+                    <div class="mt-5 p-4 rounded-24 bg-dark text-white d-flex align-items-center justify-content-between shadow-lg">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success rounded-circle p-2 me-3">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-800 mb-0">End-to-End Encrypted</h6>
+                                <p class="smaller opacity-50 mb-0">Your consultation data is secured with AES-256 clinical encryption.</p>
+                            </div>
+                        </div>
+                        <div class="d-none d-md-block">
+                            <div class="badge border border-white border-opacity-25 rounded-pill px-3 py-2 smaller">
+                                HIPAA COMPLIANT
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-whatsapp { background: #25D366; }
+    .text-whatsapp { color: #25D366; }
+    .bg-meet { background: #4285F4; }
+    .text-meet { color: #4285F4; }
+
+    .hover-consult-card {
+        transition: all 0.3s ease;
+        border: 1px solid transparent !important;
+    }
+    .hover-consult-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        border-color: rgba(0,0,0,0.05) !important;
+    }
+
+    body.dark-mode .hover-consult-card {
+        background: rgba(255, 255, 255, 0.02) !important;
+    }
+    body.dark-mode .text-dark { color: #f8fafc !important; }
+</style>
+{% endblock %}

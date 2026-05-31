@@ -1,0 +1,319 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}DocX Pharmacy | Online Medicine Store{% endblock %}
+
+{% block content %}
+<div class="row animate-up g-4">
+    <!-- Header Section -->
+    <div class="col-12">
+        <div class="glass-card p-4 p-md-5 border-0 rounded-24 shadow-lg overflow-hidden position-relative bg-primary text-white">
+            <div class="position-absolute top-0 end-0 p-5 opacity-10">
+                <i class="bi bi-capsule-pill display-1"></i>
+            </div>
+            <div class="position-relative z-1">
+                <h1 class="display-4 fw-800 mb-2">DocX Digital Pharmacy</h1>
+                <p class="lead opacity-75 mb-4">Secure, verified clinical medications delivered to your doorstep.</p>
+                <div class="d-flex gap-3">
+                    <div class="badge bg-white text-primary rounded-pill px-3 py-2 smaller fw-bold">
+                        <i class="bi bi-truck me-2"></i> EXPRESS DELIVERY
+                    </div>
+                    <div class="badge bg-white text-primary rounded-pill px-3 py-2 smaller fw-bold">
+                        <i class="bi bi-shield-check me-2"></i> 100% VERIFIED
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intelligence Search Section -->
+    <div class="col-12 mb-2">
+        <div class="position-relative shadow-lg rounded-24 overflow-hidden">
+            <div class="position-absolute top-50 start-0 translate-middle-y ms-4 z-2">
+                <i class="bi bi-search text-primary fs-5"></i>
+            </div>
+            <input type="text" id="medicineSearch" 
+                   class="form-control form-control-lg border-0 py-4 ps-5 rounded-0 bg-white" 
+                   style="padding-left: 4.5rem !important; height: 80px; font-size: 1.1rem; font-weight: 600;" 
+                   placeholder="Search for medicines, clinical supplies, or healthcare products...">
+            <div class="position-absolute top-50 end-0 translate-middle-y me-3">
+                <button class="btn btn-primary rounded-pill px-4 py-2 fw-800 smaller">
+                    SEARCH
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Category Navigation -->
+    <div class="col-12 mb-5">
+        <div class="d-flex align-items-center justify-content-between p-4 glass-card rounded-24 border-0 shadow-sm">
+            <div class="d-flex align-items-center gap-3 overflow-auto pb-2 pb-md-0 no-scrollbar" id="categoryFilters">
+                <span class="smaller fw-800 text-muted text-uppercase me-2 d-none d-md-block" style="letter-spacing: 1px;">Categories:</span>
+                {% for cat in categories %}
+                <button class="btn {% if forloop.first %}btn-primary{% else %}btn-light text-muted{% endif %} rounded-pill px-4 py-2 fw-800 smaller transition-all" 
+                        style="white-space: nowrap; border: 1px solid transparent;"
+                        onclick="filterMedicine('{{ cat }}', this)">
+                    {{ cat }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="d-none d-lg-flex align-items-center text-muted smaller fw-bold">
+                <i class="bi bi-sort-down me-2"></i> Sort by: <span class="text-primary ms-1">Popularity</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medicine Grid -->
+    <div class="col-12">
+        <div class="row g-4" id="medicineGrid">
+            {% for med in medicines %}
+            <div class="col-sm-6 col-lg-4 col-xl-3 medicine-card-item" data-category="{{ med.category }}">
+                <div class="card border-0 shadow-lg rounded-24 h-100 hover-medicine-card transition-all overflow-hidden bg-white d-flex flex-column">
+                    <div class="position-relative bg-white border-bottom" style="height: 250px;">
+                        <img src="{{ med.image }}" class="card-img-top h-100 w-100" alt="{{ med.name }}" 
+                             style="object-fit: contain; padding: 10px;"
+                             onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/883/883356.png'; this.style.opacity='0.5';">
+                        <div class="position-absolute top-0 end-0 p-3">
+                            <span class="badge bg-primary rounded-pill fw-800 px-3 py-2 shadow-sm">${{ med.price }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                        <div class="smaller text-primary fw-bold text-uppercase mb-1" style="font-size: 0.7rem;">{{ med.category }}</div>
+                        <h5 class="fw-800 mb-2 text-dark">{{ med.name }}</h5>
+                        <p class="text-muted smaller mb-4">{{ med.desc }}</p>
+                        <div class="mt-auto">
+                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-800 smaller shadow-sm" onclick="addToCart('{{ med.name }}', {{ med.price }})">
+                                <i class="bi bi-cart-plus me-2"></i> ADD TO CART
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Floating Cart Button -->
+<div class="position-fixed bottom-0 end-0 m-4 z-3">
+    <button class="btn btn-primary rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+        <i class="bi bi-cart-fill fs-4"></i>
+        <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light">
+            0
+        </a>
+    </button>
+</div>
+
+<!-- Cart Offcanvas -->
+<div class="offcanvas offcanvas-end glass-card border-0 rounded-start-24" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+    <div class="offcanvas-header border-bottom border-white border-opacity-10 p-4">
+        <h5 class="offcanvas-title fw-800" id="cartOffcanvasLabel"><i class="bi bi-cart3 text-primary me-2"></i>Your Clinical Cart</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-4">
+        <div id="cartItemsList" class="mb-4">
+            <p class="text-muted text-center py-5">Your cart is currently empty.</p>
+        </div>
+        <div id="cartFooter" class="d-none">
+            <hr class="border-white border-opacity-10 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="fw-bold">Total Estimate:</span>
+                <span class="fw-800 text-primary fs-4" id="cartTotal">$0.00</span>
+            </div>
+            <button class="btn btn-primary w-100 py-3 rounded-pill fw-800 shadow-sm" onclick="checkout()">
+                PROCEED TO CHECKOUT
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Track Order Modal (Amazon Style) -->
+<div class="modal fade" id="trackingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-24 overflow-hidden">
+            <div class="modal-header bg-primary text-white py-4 border-0">
+                <h5 class="modal-title fw-800 mb-0"><i class="bi bi-box-seam me-2"></i>Live Order Tracking</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 p-md-5">
+                <div class="text-center mb-5">
+                    <div class="smaller text-muted fw-bold text-uppercase mb-1">Order ID: <span id="displayOrderID">#DX-882192</span></div>
+                    <h4 class="fw-800 text-content-theme" id="trackingStatus">Processing Your Order...</h4>
+                </div>
+
+                <!-- Interactive Timeline -->
+                <div class="tracking-timeline position-relative mb-5">
+                    <div class="progress position-absolute top-50 start-0 translate-middle-y w-100" style="height: 4px;">
+                        <div id="trackingProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 10%;"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between position-relative z-1">
+                        <div class="step-item active text-center">
+                            <div class="step-icon bg-primary text-white rounded-circle shadow-sm mb-2 mx-auto">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <div class="smaller fw-800 text-content-theme">Ordered</div>
+                        </div>
+                        <div class="step-item text-center" id="stepPacked">
+                            <div class="step-icon bg-white text-muted rounded-circle shadow-sm mb-2 mx-auto border-2 border">
+                                <i class="bi bi-gift"></i>
+                            </div>
+                            <div class="smaller fw-800 text-muted">Packed</div>
+                        </div>
+                        <div class="step-item text-center" id="stepShipped">
+                            <div class="step-icon bg-white text-muted rounded-circle shadow-sm mb-2 mx-auto border-2 border">
+                                <i class="bi bi-truck"></i>
+                            </div>
+                            <div class="smaller fw-800 text-muted">Shipped</div>
+                        </div>
+                        <div class="step-item text-center" id="stepDelivered">
+                            <div class="step-icon bg-white text-muted rounded-circle shadow-sm mb-2 mx-auto border-2 border">
+                                <i class="bi bi-house-heart"></i>
+                            </div>
+                            <div class="smaller fw-800 text-muted">Delivered</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-light rounded-24 border border-white border-opacity-10 d-flex align-items-center mb-4">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" width="40" class="me-3">
+                    <div>
+                        <div class="smaller fw-bold text-dark">Estimated Arrival</div>
+                        <div class="smaller text-muted">Within 45 - 60 Minutes</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline-primary w-100 py-3 rounded-pill fw-800" data-bs-dismiss="modal">
+                    DONE
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-medicine-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+    .whitespace-nowrap { white-space: nowrap; }
+    
+    /* Tracking Styles */
+    .step-icon { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.4s ease; }
+    .step-item.active .step-icon { background: #0d6efd !important; color: white !important; border-color: #0d6efd !important; transform: scale(1.1); }
+    .step-item.active div:last-child { color: #0d6efd !important; }
+
+    body.dark-mode .hover-medicine-card { background: #1e293b !important; }
+    body.dark-mode .text-dark { color: #f8fafc !important; }
+    body.dark-mode .step-icon:not(.bg-primary) { background: #1e293b !important; border-color: #334155 !important; }
+    body.dark-mode .modal-content { background: #1e293b; }
+</style>
+
+<script>
+    let cart = [];
+
+    function filterMedicine(category, btn) {
+        // Update button styles
+        document.querySelectorAll('#categoryFilters button').forEach(b => {
+            b.classList.remove('btn-primary');
+            b.classList.add('btn-light', 'text-muted');
+        });
+        btn.classList.remove('btn-light', 'text-muted');
+        btn.classList.add('btn-primary');
+
+        // Filter cards
+        const cards = document.querySelectorAll('.medicine-card-item');
+        cards.forEach(card => {
+            if (category === 'All' || card.getAttribute('data-category') === category) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    document.getElementById('medicineSearch').addEventListener('keyup', function() {
+        const val = this.value.toLowerCase();
+        document.querySelectorAll('.medicine-card-item').forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+
+    function addToCart(name, price) {
+        cart.push({ name, price });
+        document.getElementById('cartCount').innerText = cart.length;
+        updateCartUI();
+        addNotification(name + " added to clinical cart!", "success");
+    }
+
+    function updateCartUI() {
+        const list = document.getElementById('cartItemsList');
+        const footer = document.getElementById('cartFooter');
+        const totalEl = document.getElementById('cartTotal');
+        
+        if (cart.length === 0) {
+            list.innerHTML = '<p class="text-muted text-center py-5">Your cart is currently empty.</p>';
+            footer.classList.add('d-none');
+            return;
+        }
+
+        footer.classList.remove('d-none');
+        
+        let total = 0;
+        list.innerHTML = cart.map((item, index) => {
+            total += item.price;
+            return `
+                <div class="d-flex align-items-center justify-content-between mb-3 p-3 bg-light rounded-12">
+                    <div>
+                        <div class="fw-bold smaller text-dark">${item.name}</div>
+                        <div class="smaller text-primary fw-bold">$${item.price}</div>
+                    </div>
+                    <button class="btn btn-sm text-danger" onclick="removeFromCart(${index})"><i class="bi bi-trash"></i></button>
+                </div>
+            `;
+        }).join('');
+
+        totalEl.innerText = '$' + total.toFixed(2);
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        document.getElementById('cartCount').innerText = cart.length;
+        updateCartUI();
+    }
+
+    function checkout() {
+        // Generate random Order ID
+        const orderId = '#DX-' + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('displayOrderID').innerText = orderId;
+
+        // Close cart
+        const cartOffcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cartOffcanvas'));
+        cartOffcanvas.hide();
+
+        // Show tracking modal
+        const trackingModal = new bootstrap.Modal(document.getElementById('trackingModal'));
+        trackingModal.show();
+
+        // Reset Tracking UI
+        document.getElementById('trackingProgress').style.width = '10%';
+        document.getElementById('trackingStatus').innerText = 'Processing Your Order...';
+        document.querySelectorAll('.step-item').forEach((s, i) => { if(i > 0) s.classList.remove('active'); });
+
+        // Simulate Amazon-style progress
+        setTimeout(() => {
+            document.getElementById('trackingProgress').style.width = '35%';
+            document.getElementById('stepPacked').classList.add('active');
+            document.getElementById('trackingStatus').innerText = 'Clinical Packing in Progress...';
+        }, 3000);
+
+        setTimeout(() => {
+            document.getElementById('trackingProgress').style.width = '65%';
+            document.getElementById('stepShipped').classList.add('active');
+            document.getElementById('trackingStatus').innerText = 'Out for Delivery (Express)';
+        }, 7000);
+
+        // Clear cart
+        cart = [];
+        document.getElementById('cartCount').innerText = 0;
+        updateCartUI();
+    }
+</script>
+{% endblock %}

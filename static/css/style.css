@@ -1,0 +1,221 @@
+/* --- Global Clinical Theme --- */
+:root {
+    --clinical-blue: #0d6efd;
+    --clinical-green: #10b981;
+    --clinical-red: #ef4444;
+    --clinical-bg: #f8fafc;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+}
+
+body {
+    background-color: #f1f5f9;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(13, 110, 253, 0.08) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, rgba(16, 185, 129, 0.05) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(239, 68, 68, 0.05) 0, transparent 50%);
+    background-attachment: fixed;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #1e293b;
+    transition: all 0.3s ease;
+}
+
+/* --- Premium Background Effects --- */
+.mesh-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.mesh-sphere {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: float 20s infinite alternate;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(50px, 50px) scale(1.1); }
+}
+
+/* --- Global Clinical Form Styling --- */
+input[type="text"], input[type="password"], input[type="email"], select, textarea {
+    border-radius: 12px !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    padding: 12px 16px !important;
+    transition: all 0.3s ease !important;
+    background-color: #ffffff !important;
+}
+
+input:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important;
+    outline: none !important;
+}
+
+body.dark-mode input {
+    background-color: #1e293b !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    color: white !important;
+}
+
+/* --- Real-time Vitals --- */
+.vitals-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.vitals-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+}
+
+.vitals-icon-box {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.vitals-value { font-size: 1.5rem; font-weight: 800; }
+.vitals-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; }
+
+.heart-pulse-icon {
+    color: #ef4444;
+    animation: heartBeat 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(0.95); }
+    5% { transform: scale(1.1); }
+    39% { transform: scale(0.85); }
+    45% { transform: scale(1); }
+    60% { transform: scale(0.95); }
+    100% { transform: scale(0.9); }
+}
+
+.live-indicator {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.6rem;
+    font-weight: 800;
+}
+
+/* --- Quick Access Portals (Ultra-Interactive) --- */
+.portal-card {
+    background: white;
+    border-radius: 28px;
+    padding: 40px 25px;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,0.06);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.portal-card::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; width: 0; height: 0;
+    background: radial-gradient(circle, rgba(13, 110, 253, 0.04) 0%, transparent 70%);
+    transition: all 0.6s ease-out;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+.portal-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 40px 80px rgba(13, 110, 253, 0.12);
+}
+
+.portal-card:hover::before { width: 300%; height: 300%; }
+
+.portal-icon {
+    width: 70px; height: 70px; border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; margin-bottom: 25px;
+    background: #f8fafc; color: #1e293b;
+    transition: all 0.4s ease;
+}
+
+.portal-card:hover .portal-icon {
+    transform: scale(1.15) rotate(-5deg);
+    background: #0d6efd; color: white;
+}
+
+.portal-link-text {
+    font-size: 0.75rem; font-weight: 800; color: #0d6efd;
+    text-transform: uppercase; letter-spacing: 2px;
+    background: rgba(13, 110, 253, 0.05); padding: 8px 16px; border-radius: 100px;
+}
+
+.portal-card:hover .portal-link-text { background: #0d6efd; color: white; }
+
+/* --- AI Intelligence Card --- */
+.ai-intelligence-card {
+    background: white; border: 2px solid #0d6efd !important;
+    position: relative; overflow: hidden;
+}
+
+.ai-scan-line {
+    position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, #0d6efd, transparent);
+    animation: scanAI 3s linear infinite;
+}
+
+@keyframes scanAI { 0% { top: 0; } 100% { top: 100%; } }
+
+.ai-brain-pulse {
+    width: 40px; height: 40px; background: rgba(13, 110, 253, 0.1);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    animation: brainPulse 2s infinite;
+}
+
+@keyframes brainPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
+}
+
+/* --- Emergency Dock --- */
+.emergency-dock {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 1000; display: flex; gap: 10px;
+    background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px);
+    padding: 10px 20px; border-radius: 100px;
+}
+
+.dock-item {
+    width: 45px; height: 45px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; transition: all 0.2s ease;
+}
+
+.dock-item:hover { transform: scale(1.2); }
+.dock-item.sos { background: #ef4444; }
+
+/* Status Pills */
+.status-pill { padding: 4px 12px; border-radius: 100px; font-size: 0.7rem; font-weight: 800; }
+.ai-card-title { color: #1e293b; }
+.ai-card-text { color: #475569; }
+
+body.dark-mode .vitals-card, body.dark-mode .portal-card, body.dark-mode .ai-intelligence-card {
+    background: #1e293b; border-color: rgba(255,255,255,0.05);
+}
+
+body.dark-mode .ai-card-title { color: white; }
+body.dark-mode .ai-card-text { color: rgba(255,255,255,0.85); }

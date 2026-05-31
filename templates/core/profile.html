@@ -1,0 +1,349 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Clinical Identity - DocX AI{% endblock %}
+
+{% block content %}
+<div class="row g-4 animate-up">
+    <!-- Clinical ID Card (Left) -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-lg rounded-24 overflow-hidden profile-card-main">
+            <div class="profile-card-header bg-primary py-5 text-center position-relative">
+                <div class="profile-scan-line"></div>
+                <div class="position-relative d-inline-block">
+                    <img id="profile-avatar-img" src="https://ui-avatars.com/api/?name={{ user.username }}&background=random&color=fff&size=200&bold=true" 
+                         class="rounded-circle shadow-lg border-4 border-white mb-3 profile-avatar" width="140" height="140" style="object-fit: cover;" alt="Profile">
+                    <button class="btn btn-white btn-sm rounded-circle position-absolute bottom-0 end-0 shadow-sm p-2 mb-3 me-1" onclick="document.getElementById('editAvatarFile').click();">
+                        <i class="bi bi-camera-fill text-primary"></i>
+                    </button>
+                    <div class="status-indicator-online"></div>
+                </div>
+                <h3 class="fw-800 text-white mb-0" id="display-name">{{ user.first_name|default:user.username }} {{ user.last_name|default:"" }}</h3>
+                <div class="verified-badge-wrapper mt-2">
+                    <span class="badge verified-pill">
+                        <i class="bi bi-patch-check-fill me-1"></i> VERIFIED PATIENT
+                    </span>
+                </div>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="row g-2 mb-4">
+                    <div class="col-6">
+                        <div class="p-3 rounded-24 bg-light interactive-stat-box">
+                            <div class="smaller text-muted fw-bold text-uppercase mb-1">Records</div>
+                            <div class="h4 fw-800 mb-0 text-primary">42</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-24 bg-light interactive-stat-box">
+                            <div class="smaller text-muted fw-bold text-uppercase mb-1">Score</div>
+                            <div class="h4 fw-800 mb-0 text-success">8.4</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-start px-2">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="smaller text-muted fw-bold">PATIENT ID</span>
+                        <span class="smaller fw-800 text-content-theme">#SHA-{{ user.id|add:1000 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="smaller text-muted fw-bold">MEMBER SINCE</span>
+                        <span class="smaller fw-800 text-content-theme">{{ user.date_joined|date:"M Y"|upper }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="smaller text-muted fw-bold">BLOOD GROUP</span>
+                        <span class="smaller fw-800 text-danger" id="display-blood-group">O+ (Rh Positive)</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="smaller text-muted fw-bold">ALLERGIES</span>
+                        <span class="smaller fw-800 text-warning" id="display-allergies">NONE DETECTED</span>
+                    </div>
+                </div>
+                
+                <hr class="my-4 opacity-5">
+                
+                <button class="btn btn-primary w-100 py-3 rounded-pill fw-800 shadow-sm transition-all mb-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                    <i class="bi bi-pencil-square me-2"></i> UPDATE IDENTITY
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Identity & Security Intelligence (Right) -->
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-lg rounded-24 p-4 p-md-5 h-100 profile-details-card">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h4 class="fw-800 mb-0 text-content-theme"><i class="bi bi-shield-lock text-primary me-3"></i>Intelligence & Security</h4>
+                <div class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill smaller fw-bold">ENCRYPTION ACTIVE</div>
+            </div>
+            
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <div class="p-4 rounded-24 bg-light border border-opacity-10 h-100">
+                        <label class="smaller fw-800 text-muted text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Primary Email</label>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white rounded-circle p-2 me-3 shadow-sm">
+                                <i class="bi bi-envelope text-primary"></i>
+                            </div>
+                            <span class="fw-bold fs-5 text-content-theme" id="display-email">{{ user.email|default:"Not Sync" }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-4 rounded-24 bg-light border border-opacity-10 h-100">
+                        <label class="smaller fw-800 text-muted text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Clinical Sync Status</label>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white rounded-circle p-2 me-3 shadow-sm">
+                                <i class="bi bi-arrow-repeat text-success"></i>
+                            </div>
+                            <span class="fw-bold fs-5 text-content-theme">Real-time Verified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-800 mb-4 text-content-theme"><i class="bi bi-toggle-on text-primary me-2"></i> Security Protocols</h5>
+            <div class="d-flex flex-column gap-3">
+                <div class="p-4 rounded-24 bg-light border-0 d-flex justify-content-between align-items-center protocol-row">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 rounded-4 p-3 me-4">
+                            <i class="bi bi-shield-shaded text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-800 text-content-theme">Two-Factor Authentication</h6>
+                            <p class="mb-0 smaller text-muted">Extra encryption layer for clinical data access.</p>
+                        </div>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" checked>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-24 bg-light border-0 d-flex justify-content-between align-items-center protocol-row">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-info bg-opacity-10 rounded-4 p-3 me-4">
+                            <i class="bi bi-bell-fill text-info fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-800 text-content-theme">Intelligence Notifications</h6>
+                            <p class="mb-0 smaller text-muted">Weekly AI summaries and vital threshold alerts.</p>
+                        </div>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" checked>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-5">
+                <div class="p-3 rounded-24 bg-danger-soft d-flex justify-content-between align-items-center">
+                    <span class="smaller fw-bold text-danger">CRITICAL ACTION: DATA PERMANENCE</span>
+                    <button class="btn btn-sm btn-danger rounded-pill px-4 fw-bold">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-24 overflow-hidden">
+            <div class="modal-header bg-primary text-white py-4 border-0">
+                <h5 class="modal-title fw-800">Update Clinical Identity</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 p-md-5">
+                <form id="profileUpdateForm" enctype="multipart/form-data">
+                    <div class="mb-4 text-center">
+                        <div class="position-relative d-inline-block">
+                            <img id="edit-avatar-preview" src="https://ui-avatars.com/api/?name={{ user.username }}&background=random&color=fff&size=200&bold=true" 
+                                 class="rounded-circle border-4 border-primary-soft mb-3" width="100" height="100" style="object-fit: cover;">
+                            <label for="editAvatarFile" class="btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-2 mb-3 shadow-sm" style="cursor: pointer;">
+                                <i class="bi bi-camera"></i>
+                            </label>
+                            <input type="file" id="editAvatarFile" accept="image/*" class="d-none" onchange="previewAvatar(this)">
+                        </div>
+                        <p class="smaller text-muted mt-2">Select a photo from your device</p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="smaller fw-800 text-muted text-uppercase mb-2">First Name</label>
+                        <input type="text" class="form-control bg-light border-0 py-3 px-3 rounded-12" id="editFirstName" value="{{ user.first_name }}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="smaller fw-800 text-muted text-uppercase mb-2">Last Name</label>
+                        <input type="text" class="form-control bg-light border-0 py-3 px-3 rounded-12" id="editLastName" value="{{ user.last_name }}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="smaller fw-800 text-muted text-uppercase mb-2">Email Address</label>
+                        <input type="email" class="form-control bg-light border-0 py-3 px-3 rounded-12" id="editEmail" value="{{ user.email }}">
+                    </div>
+                    <div class="row g-3 mb-5">
+                        <div class="col-6">
+                            <label class="smaller fw-800 text-muted text-uppercase mb-2">Blood Group</label>
+                            <select class="form-select bg-light border-0 py-3 px-3 rounded-12" id="editBloodGroup">
+                                <option value="O+ (Rh Positive)">O+</option>
+                                <option value="O- (Rh Negative)">O-</option>
+                                <option value="A+ (Rh Positive)">A+</option>
+                                <option value="A- (Rh Negative)">A-</option>
+                                <option value="B+ (Rh Positive)">B+</option>
+                                <option value="B- (Rh Negative)">B-</option>
+                                <option value="AB+ (Rh Positive)">AB+</option>
+                                <option value="AB- (Rh Negative)">AB-</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="smaller fw-800 text-muted text-uppercase mb-2">Allergies</label>
+                            <input type="text" class="form-control bg-light border-0 py-3 px-3 rounded-12" id="editAllergies" placeholder="e.g. Peanuts">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-800 shadow-sm" onclick="saveProfileChanges()">
+                        SAVE IDENTITY CHANGES
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Profile Specific Interactive Styles */
+    .profile-card-main { transition: all 0.4s ease; }
+    .profile-details-card { transition: all 0.4s ease; }
+    
+    .profile-scan-line {
+        position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+        animation: scanProfile 4s linear infinite;
+        z-index: 1;
+    }
+    
+    @keyframes scanProfile { 0% { top: 0; } 100% { top: 100%; } }
+    
+    .status-indicator-online {
+        position: absolute; bottom: 15px; right: 5px;
+        width: 20px; height: 20px; background: #10b981;
+        border: 4px solid white; border-radius: 50%;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+    }
+    
+    .interactive-stat-box {
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        cursor: default;
+    }
+    
+    .interactive-stat-box:hover {
+        transform: translateY(-5px);
+        background: #ffffff !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+    
+    .protocol-row {
+        transition: all 0.3s ease;
+    }
+    
+    .protocol-row:hover {
+        background: #ffffff !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        transform: scale(1.01);
+    }
+
+    /* Theme Awareness Overrides */
+    .verified-pill {
+        background: rgba(16, 185, 129, 0.2);
+        color: #ffffff;
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        border-radius: 100px;
+        padding: 6px 16px;
+        font-weight: 800;
+        font-size: 0.65rem;
+        letter-spacing: 1px;
+    }
+    
+    body.dark-mode .verified-pill {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .text-content-theme { color: #1e293b; }
+    body.dark-mode .text-content-theme { color: #f8fafc; }
+    body.dark-mode .bg-light { background: rgba(255,255,255,0.03) !important; }
+    body.dark-mode .status-indicator-online { border-color: #1e293b; }
+    body.dark-mode .interactive-stat-box:hover { background: rgba(255,255,255,0.05) !important; }
+    body.dark-mode .protocol-row:hover { background: rgba(255,255,255,0.05) !important; }
+    body.dark-mode .modal-content { background: #1e293b; }
+    
+    .rounded-12 { border-radius: 12px !important; }
+    .bg-primary-soft { background: rgba(13, 110, 253, 0.1) !important; }
+</style>
+
+<script>
+    let currentAvatarData = null;
+
+    // Local profile load (Global sync handles the rest)
+    window.addEventListener('DOMContentLoaded', function() {
+        const savedEmail = localStorage.getItem('user_email');
+        const savedBlood = localStorage.getItem('user_blood');
+        const savedAllergies = localStorage.getItem('user_allergies');
+
+        if (savedEmail) document.getElementById('display-email').innerText = savedEmail;
+        if (savedBlood) document.getElementById('display-blood-group').innerText = savedBlood;
+        if (savedAllergies) document.getElementById('display-allergies').innerText = savedAllergies;
+        
+        // Ensure global sync runs for any missed elements
+        if (typeof syncClinicalIdentity === 'function') syncClinicalIdentity();
+    });
+
+    function previewAvatar(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('edit-avatar-preview').src = e.target.result;
+                currentAvatarData = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveProfileChanges() {
+        const firstName = document.getElementById('editFirstName').value;
+        const lastName = document.getElementById('editLastName').value;
+        const email = document.getElementById('editEmail').value;
+        const blood = document.getElementById('editBloodGroup').value;
+        const allergies = document.getElementById('editAllergies').value;
+        const fullName = (firstName + ' ' + lastName).trim();
+
+        try {
+            // Persist Data
+            if (fullName) localStorage.setItem('user_name', fullName);
+            if (email) localStorage.setItem('user_email', email);
+            if (blood) localStorage.setItem('user_blood', blood);
+            if (allergies) localStorage.setItem('user_allergies', allergies);
+            
+            if (currentAvatarData) {
+                localStorage.setItem('user_avatar', currentAvatarData);
+            }
+
+            // Update UI Locally
+            document.getElementById('display-name').innerText = fullName || "{{ user.username }}";
+            document.getElementById('display-email').innerText = email;
+            document.getElementById('display-blood-group').innerText = blood;
+            document.getElementById('display-allergies').innerText = allergies || "NONE DETECTED";
+            
+            // Trigger Global Sync (updates navbar etc)
+            if (typeof syncClinicalIdentity === 'function') syncClinicalIdentity();
+
+            // Close Modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+            modal.hide();
+
+            // Success Notification
+            addNotification("Clinical Metadata Synchronized", "success");
+        } catch (e) {
+            console.error("Storage Error:", e);
+            alert("Warning: Profile size exceeded storage limits. Some data may not persist.");
+        }
+    }
+</script>
+{% endblock %}

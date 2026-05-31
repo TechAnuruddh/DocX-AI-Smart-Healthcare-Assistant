@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Login - DocX{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center min-vh-75 align-items-center">
+    <div class="col-md-5 col-lg-4 animate-up">
+        <div class="card shadow portal-card-std">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">
+                    <i class="bi bi-box-arrow-in-right text-primary"></i> Login
+                </h2>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="smaller fw-bold text-muted text-uppercase mb-2">Username</label>
+                        <input type="text" name="username" class="form-control" id="id_username" required autofocus>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="id_password" class="smaller fw-bold text-muted text-uppercase mb-2">Password</label>
+                        <input type="password" name="password" class="form-control" id="id_password" required>
+                    </div>
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger smaller">
+                        <strong>Error:</strong> Invalid username or password.
+                    </div>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn btn-primary w-100 mb-3 py-3 rounded-pill fw-bold">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </button>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <p class="mb-0 small">Don't have an account? <a href="{% url 'signup' %}" class="fw-bold text-decoration-none">Sign up here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

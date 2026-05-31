@@ -1,0 +1,123 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Create Account - DocX AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-75 py-5">
+    <div class="col-md-7 col-lg-6 col-xl-5 animate-up">
+        <div class="card border-0 shadow-lg rounded-24 overflow-hidden" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
+            <div class="card-body p-4 p-md-5">
+                <!-- Branding/Header -->
+                <div class="text-center mb-5">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-person-plus-fill text-primary h3 mb-0"></i>
+                    </div>
+                    <h2 class="fw-800 text-dark mb-1">Create Account</h2>
+                    <p class="text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">Join the Clinical Network</p>
+                </div>
+                
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger smaller animate-shake mb-4">
+                            {% for error in form.non_field_errors %}
+                                <div class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Username -->
+                    <div class="mb-4">
+                        <label for="{{ form.username.id_for_label }}" class="smaller fw-800 text-muted text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger smaller mt-1 animate-shake">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label for="{{ form.email.id_for_label }}" class="smaller fw-800 text-muted text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Email Address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger smaller mt-1 animate-shake">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Names Row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.first_name.id_for_label }}" class="smaller fw-800 text-muted text-uppercase mb-2 d-block" style="letter-spacing: 1px;">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.last_name.id_for_label }}" class="smaller fw-800 text-muted text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+
+                    <hr class="my-4 opacity-5">
+
+                    <!-- Password Row -->
+                    <div class="row g-3 mb-5">
+                        <div class="col-md-6">
+                            <label for="{{ form.password1.id_for_label }}" class="smaller fw-800 text-muted text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Password</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <div class="text-danger smaller mt-1 animate-shake">{{ form.password1.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.password2.id_for_label }}" class="smaller fw-800 text-muted text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Confirm</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="text-danger smaller mt-1 animate-shake">{{ form.password2.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-800 shadow-sm transition-all mb-4">
+                        <i class="bi bi-check-circle-fill me-2"></i> COMPLETE REGISTRATION
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="small text-muted mb-0">Already have an account? <a href="{% url 'login' %}" class="fw-bold text-primary text-decoration-none">Login here</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="smaller text-muted">&copy; 2026 DocX AI Healthcare System. Secure Registration.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .min-vh-75 { min-height: 75vh; }
+    /* Premium Input Styling Overrides */
+    input { 
+        width: 100%; 
+        background: #f8fafc !important; 
+        border: 1px solid #e2e8f0 !important; 
+        padding: 12px 18px !important; 
+        border-radius: 12px !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+    }
+    input:focus {
+        background: #ffffff !important;
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important;
+        outline: none !important;
+    }
+    .animate-shake { animation: shake 0.5s ease-in-out; }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+</style>
+{% endblock %}

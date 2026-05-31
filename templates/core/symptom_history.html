@@ -1,0 +1,232 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Medical Records | DocX{% endblock %}
+{% block header_title %}Analysis Archive{% endblock %}
+{% block header_subtitle %}A comprehensive history of your health logs and AI assessments{% endblock %}
+
+{% block content %}
+<div class="row animate-slide-up g-0">
+    <div class="col-12 px-0">
+        <div class="glass-card p-4 p-md-5 border-0 rounded-0" style="min-height: 80vh;">
+            <!-- Table Header -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4 container-fluid">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary-gradient rounded-4 p-3 shadow-lg">
+                        <i class="bi bi-journal-medical text-white fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-800 mb-0">Diagnostic History</h4>
+                        <p class="text-muted mb-0">{{ symptoms.count|default:"0" }} Total Records Found</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <div class="glass rounded-pill px-3 py-2 d-flex align-items-center gap-2 border-0" style="background: rgba(255,255,255,0.05); min-width: 300px;">
+                        <i class="bi bi-search text-muted"></i>
+                        <input type="text" id="recordSearch" class="bg-transparent border-0 text-white w-100 smaller" placeholder="Search by symptoms or patient name...">
+                    </div>
+                    <button class="btn glass-card border-0 px-4"><i class="bi bi-download me-2"></i> Export CSV</button>
+                </div>
+            </div>
+
+            <!-- Wide Responsive Table -->
+            <div class="table-responsive container-fluid">
+                <table class="premium-table">
+                    <thead>
+                        <tr class="smaller fw-800 text-uppercase tracking-wider">
+                            <th class="ps-4">Record Identity</th>
+                            {% if is_admin %}<th>Patient</th>{% endif %}
+                            <th>Intensity</th>
+                            <th>AI Assessment</th>
+                            <th>Timestamp</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        {% for symptom in symptoms %}
+                        <tr class="record-row">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-4 bg-primary bg-opacity-10 p-2 me-3">
+                                        <i class="bi bi-fingerprint text-primary fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-bold">{{ symptom.symptom_text|truncatewords:8 }}</p>
+                                        <p class="mb-0 smaller text-muted">Ref: #DX-{{ symptom.id|stringformat:"05d" }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            {% if is_admin %}
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-person-circle text-primary"></i>
+                                    <span class="fw-600">{{ symptom.user.get_full_name|default:symptom.user.username }}</span>
+                                </div>
+                            </td>
+                            {% endif %}
+                            <td>
+                                {% if symptom.severity == 'Low' %}
+                                    <span class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-3 py-2">Low</span>
+                                {% elif symptom.severity == 'Medium' %}
+                                    <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 px-3 py-2">Medium</span>
+                                {% else %}
+                                    <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 px-3 py-2">High</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="bi bi-shield-check text-primary me-2"></i> Clinical Log
+                                </div>
+                            </td>
+                            <td class="text-muted smaller fw-600">
+                                {{ symptom.created_at|date:"M d, Y" }}<br>
+                                <span class="opacity-50">{{ symptom.created_at|date:"H:i A" }}</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-sm btn-glass p-2" title="View Detailed Report" 
+                                            data-suggestion="{{ symptom.suggestion }}"
+                                            onclick="showReport(this, '{{ symptom.id }}');">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    <a href="{% url 'delete_symptom' symptom.id %}" 
+                                       class="btn btn-sm btn-outline-danger border-0 p-2 opacity-75" 
+                                       title="Delete Permanent Record"
+                                       onclick="return confirm('⚠️ WARNING: This will permanently delete this clinical record. Proceed?');">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="py-5">
+                                    <i class="bi bi-folder2-open fs-1 text-muted opacity-25 d-block mb-3"></i>
+                                    <h5 class="text-muted fw-bold">No Records Available</h5>
+                                    <p class="smaller text-muted mb-4">Start by performing your first AI symptom analysis.</p>
+                                    <a href="{% url 'add_symptom' %}" class="btn-premium">Analyze Now</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content glass-card border-0">
+            <div class="modal-header border-bottom border-white border-opacity-10">
+                <h5 class="modal-title fw-800">Clinical Archive Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 p-md-5" id="reportModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Real-time Search
+    document.getElementById('recordSearch').addEventListener('keyup', function() {
+        const value = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.record-row');
+        
+        rows.forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(value) ? '' : 'none';
+        });
+    });
+
+    // Show Report function
+    function showReport(btn, id) {
+        const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+        modal.show();
+        
+        const suggestion = btn.getAttribute('data-suggestion') || "No detailed report available.";
+        
+        function parseMarkdown(text) {
+            let lines = text.split('\n');
+            let html = [];
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) {
+                    html.push('<br>');
+                    continue;
+                }
+                
+                // Headers
+                if (line.startsWith('### ')) {
+                    html.push(`<h6 class="text-primary fw-bold mt-3 mb-2">${line.substring(4)}</h6>`);
+                    continue;
+                }
+                if (line.startsWith('## ')) {
+                    html.push(`<h5 class="text-primary fw-bold mt-4 mb-3">${line.substring(3)}</h5>`);
+                    continue;
+                }
+                if (line.startsWith('# ')) {
+                    html.push(`<h4 class="text-primary fw-bold mt-4 mb-3">${line.substring(2)}</h4>`);
+                    continue;
+                }
+                
+                // Bullet lists
+                if (line.startsWith('- ') || line.startsWith('* ')) {
+                    let content = line.substring(2);
+                    content = content.replace(/\*\*(.*?)\*\*/g, '<strong class="fw-bold text-dark">$1</strong>');
+                    html.push(`<div class="d-flex align-items-start mb-2 ms-3"><span class="text-primary me-2">&bull;</span><span>${content}</span></div>`);
+                    continue;
+                }
+                
+                // Numbered lists
+                let numMatch = line.match(/^(\d+)\.\s+(.+)$/);
+                if (numMatch) {
+                    let num = numMatch[1];
+                    let content = numMatch[2];
+                    content = content.replace(/\*\*(.*?)\*\*/g, '<strong class="fw-bold text-dark">$1</strong>');
+                    html.push(`<div class="d-flex align-items-start mb-2 ms-3"><span class="text-primary fw-bold me-2">${num}.</span><span>${content}</span></div>`);
+                    continue;
+                }
+                
+                // Bold headers/lines
+                if (line.startsWith('**') && (line.endsWith('**') || line.endsWith('**:'))) {
+                    let content = line.replace(/^\*\*|\*\*$/g, '').replace(/:$/, '');
+                    html.push(`<h5 class="text-primary fw-bold mt-4 mb-2 border-bottom pb-2">${content}</h5>`);
+                    continue;
+                }
+                
+                // Normal lines with inline bold
+                let processedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong class="fw-bold text-dark">$1</strong>');
+                html.push(`<p class="mb-2">${processedLine}</p>`);
+            }
+            
+            return html.join('');
+        }
+
+        document.getElementById('reportModalBody').innerHTML = `
+            <div class="medical-report-content">
+                <p class="text-primary fw-bold text-uppercase mb-4">Diagnostic Log Entry #DX-${id.padStart(5, '0')}</p>
+                <div class="report-text text-muted mb-4" style="line-height: 1.8;">
+                    ${parseMarkdown(suggestion)}
+                </div>
+                <div class="alert alert-primary bg-opacity-10 border-0 text-muted small">
+                    <i class="bi bi-info-circle me-2"></i> This record is securely stored in the clinical vault. 
+                    Full historical data is available for healthcare provider review.
+                </div>
+                <hr class="border-white border-opacity-10 my-4">
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-premium px-4" data-bs-dismiss="modal">Close Archive</button>
+                </div>
+            </div>
+        `;
+    }
+</script>
+{% endblock %}
+{% endblock %}
